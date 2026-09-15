@@ -9,8 +9,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# ─── API Keys ─────────────────────────────────────────────────────────────────
+# ─── API Keys & Cloud LLMs ───────────────────────────────────────────────────
 CORE_API_KEY = os.getenv("CORE_API_KEY", "")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
 
 # ─── Ollama (Local LLM) ──────────────────────────────────────────────────────
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
