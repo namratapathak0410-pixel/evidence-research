@@ -804,9 +804,9 @@ This project does not currently have a specified open-source license. All rights
 ## 32. Author & Institutional Information
 
 - **Project Title**: Scientific Evidence Research System
-- **Author**: *[Author Name / Student Name]*
-- **Institution**: *[University / Department Name]*
-- **Course / Degree**: Industrial Project / Final Year Engineering
+- **Author**: *Namrata Pathak*
+- **Institution**: *KIIT University*
+- **Course / Degree**: M.Tech 
 
 ---
 
