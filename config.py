@@ -43,5 +43,5 @@ WEIGHT_EVIDENCE_LEVEL = 0.10
 
 # ─── Flask ────────────────────────────────────────────────────────────────────
 FLASK_HOST = "0.0.0.0"
-FLASK_PORT = 5000
-FLASK_DEBUG = os.getenv("FLASK_DEBUG", "true").lower() == "true"
+FLASK_PORT = int(os.getenv("PORT", 5000))
+FLASK_DEBUG = os.getenv("FLASK_DEBUG", "false").lower() == "true"
