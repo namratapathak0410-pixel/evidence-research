@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scientific Evidence Research Workstation</title>
+    <meta name="description" content="Intelligent scientific evidence workstation that discovers, evaluates, and synthesizes peer-reviewed research with multi-window inspection.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,500;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="workstation-app">
+        <!-- Top App Bar -->
+        <header class="app-topbar">
+            <div class="brand-section">
+                <div class="brand-badge-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                        <path d="M2 17l10 5 10-5"/>
+                        <path d="M2 12l10 5 10-5"/>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <h1>Evidence Research Workstation</h1>
+                    <p>Multi-source scientific evidence discovery & provenance engine</p>
+                </div>
+            </div>
+            <div class="topbar-status">
+                <div class="status-pill">
+                    <span class="status-dot-pulse"></span>
+                    <span>CORE & Europe PMC Live</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Query Dock Window -->
+        <section class="query-dock">
+            <div class="query-dock-header">
+                <span class="query-dock-label">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    Research Inquiry
+                </span>
+                <span id="char-count" style="font-size:0.72rem;color:var(--text-muted);font-family:var(--font-mono)">0 / 2000</span>
+            </div>
+            <div class="query-input-row">
+                <textarea
+                    id="question-input"
+                    class="query-textarea"
+                    placeholder="Enter your clinical or scientific inquiry (e.g., Does metformin reduce cardiovascular events in patients with type 2 diabetes?)"
+                    rows="2"
+                    maxlength="2000"
+                ></textarea>
+                <button id="search-btn" class="query-submit-btn" onclick="submitQuestion()">
+                    <span class="btn-text">Synthesize Evidence</span>
+                    <span class="btn-loader" style="display:none">Processing...</span>
+                </button>
+            </div>
+            <div class="presets-dock">
+                <span class="presets-label">Inquiry Presets:</span>
+                <button class="preset-chip" onclick="fillExample(this)" data-question="Does metformin reduce cardiovascular events in patients with type 2 diabetes?">
+                    <span class="preset-domain-tag med">Medical</span>
+                    <span>Metformin & Cardiovascular Events</span>
+                </button>
+                <button class="preset-chip" onclick="fillExample(this)" data-question="What are recent applications of transformer models in scientific information retrieval?">
+                    <span class="preset-domain-tag sci">Scientific</span>
+                    <span>Transformers in Information Retrieval</span>
+                </button>
+                <button class="preset-chip" onclick="fillExample(this)" data-question="How effective are deep learning models for cancer detection using medical imaging?">
+                    <span class="preset-domain-tag mix">Mixed</span>
+                    <span>Deep Learning in Cancer Imaging</span>
+                </button>
+                <button class="preset-chip" onclick="fillExample(this)" data-question="Does metformin 500 mg twice daily reduce cardiovascular events compared with standard care in adults with type 2 diabetes?">
+                    <span class="preset-domain-tag med">Detailed</span>
+                    <span>Metformin 500mg (PICO protocol)</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Pipeline Progress Window -->
+        <section class="pipeline-window" id="pipeline-section" style="display:none">
+            <div class="pipeline-window-title">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                Execution Pipeline
+            </div>
+            <div class="pipeline-timeline" id="pipeline-stages">
+                <!-- Dynamically populated -->
+            </div>
+        </section>
+
+        <!-- Multi-Window Workspace Container -->
+        <main id="workspace-container" style="display:none">
+            <!-- Workspace Toolbar -->
+            <div class="workspace-toolbar">
+                <div class="toolbar-left-tabs">
+                    <button class="ws-tab-btn active" onclick="switchTab('all')">
+                        <span>All Windows</span>
+                    </button>
+                    <button class="ws-tab-btn" onclick="switchTab('synthesis')">
+                        <span>Synthesis</span>
+                    </button>
+                    <button class="ws-tab-btn" onclick="switchTab('graph')">
+                        <span>Knowledge Graph</span>
+                    </button>
+                    <button class="ws-tab-btn" onclick="switchTab('citations')">
+                        <span>Sources</span>
+                        <span class="tab-badge" id="tab-badge-citations">0</span>
+                    </button>
+                    <button class="ws-tab-btn" onclick="switchTab('claims')">
+                        <span>Evidence Claims</span>
+                        <span class="tab-badge" id="tab-badge-claims">0</span>
+                    </button>
+                    <button class="ws-tab-btn" onclick="switchTab('coverage')">
+                        <span>Coverage</span>
+                    </button>
+                    <button class="ws-tab-btn" onclick="switchTab('audit')">
+                        <span>Audit Trail</span>
+                    </button>
+                </div>
+                <div class="toolbar-right-actions">
+                    <button class="ws-layout-btn active" id="btn-layout-tiled" onclick="setLayout('tiled')" title="Tiled Multi-Window Dashboard">
+                        <span>⊞ Tiled Grid</span>
+                    </button>
+                    <button class="ws-layout-btn" id="btn-layout-focus" onclick="setLayout('focus')" title="Focus Mode: Synthesis & Graph">
+                        <span>◫ Focus Split</span>
+                    </button>
+                    <button class="ws-layout-btn" id="btn-layout-matrix" onclick="setLayout('matrix')" title="Evidence Table Mode">
+                        <span>☰ Matrix View</span>
+                    </button>
+                    <button class="ws-layout-btn" onclick="copyFullReport(this)" title="Copy synthesis report to clipboard">
+                        <span>📋 Copy Report</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Workspace Grid -->
+            <div class="workspace-grid layout-tiled" id="workspace-grid">
+                
+                <!-- Left Inspector Column -->
+                <div class="col-left-inspector">
+                    
+                    <!-- Window 1: Question & PICO Analysis -->
+                    <div class="ws-window" id="window-analysis">
+                        <div class="ws-window-header">
+                            <div class="window-title-left">
+                                <div class="window-dots">
+                                    <span class="window-dot min" onclick="toggleWindowMin('window-analysis')"></span>
+                                    <span class="window-dot max" onclick="toggleWindowMax('window-analysis')"></span>
+                                </div>
+                                <span class="window-title-text">🔬 Question Protocol</span>
+                            </div>
+                            <div class="window-controls-right">
+                                <button class="win-ctrl-btn" onclick="toggleWindowMin('window-analysis')" title="Minimize">−</button>
+                                <button class="win-ctrl-btn" onclick="toggleWindowMax('window-analysis')" title="Maximize">⤢</button>
+                            </div>
+                        </div>
+                        <div class="ws-window-body" id="analysis-window-body">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Window 2: Coverage & Verification Matrix -->
+                    <div class="ws-window" id="window-coverage">
+                        <div class="ws-window-header">
+                            <div class="window-title-left">
+                                <div class="window-dots">
+                                    <span class="window-dot min" onclick="toggleWindowMin('window-coverage')"></span>
+                                    <span class="window-dot max" onclick="toggleWindowMax('window-coverage')"></span>
+                                </div>
+                                <span class="window-title-text">📊 Coverage Matrix</span>
+                            </div>
+                            <div class="window-controls-right">
+                                <button class="win-ctrl-btn" onclick="toggleWindowMin('window-coverage')" title="Minimize">−</button>
+                                <button class="win-ctrl-btn" onclick="toggleWindowMax('window-coverage')" title="Maximize">⤢</button>
+                            </div>
+                        </div>
+                        <div class="ws-window-body" id="coverage-window-body">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Window 3: Conflicts (Hidden if none) -->
+                    <div class="ws-window" id="window-conflicts" style="display:none">
+                        <div class="ws-window-header">
+                            <div class="window-title-left">
+                                <div class="window-dots">
+                                    <span class="window-dot min" onclick="toggleWindowMin('window-conflicts')"></span>
+                                    <span class="window-dot max" onclick="toggleWindowMax('window-conflicts')"></span>
+                                </div>
+                                <span class="window-title-text" style="color:var(--color-danger)">⚡ Conflicting Findings</span>
+                            </div>
+                            <div class="window-controls-right">
+                                <button class="win-ctrl-btn" onclick="toggleWindowMin('window-conflicts')" title="Minimize">−</button>
+                                <button class="win-ctrl-btn" onclick="toggleWindowMax('window-conflicts')" title="Maximize">⤢</button>
+                            </div>
+                        </div>
+                        <div class="ws-window-body" id="conflicts-window-body">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Center/Right Synthesis Column -->
+                <div class="col-center-synthesis">
+
+                    <!-- Window 4: Evidence Synthesis -->
+                    <div class="ws-window synthesis-window" id="window-synthesis">
+                        <div class="ws-window-header">
+                            <div class="window-title-left">
+                                <div class="window-dots">
+                                    <span class="window-dot min" onclick="toggleWindowMin('window-synthesis')"></span>
+                                    <span class="window-dot max" onclick="toggleWindowMax('window-synthesis')"></span>
+                                </div>
+                                <span class="window-title-text">📋 Evidence Synthesis</span>
+                                <span class="window-counter-badge" id="synthesis-badge">Peer-Reviewed</span>
+                            </div>
+                            <div class="window-controls-right">
+                                <button class="win-ctrl-btn" onclick="toggleWindowMin('window-synthesis')" title="Minimize">−</button>
+                                <button class="win-ctrl-btn" onclick="toggleWindowMax('window-synthesis')" title="Maximize">⤢</button>
+                            </div>
+                        </div>
+                        <div class="ws-window-body" id="synthesis-window-body">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Window 5: Knowledge Graph Studio -->
+                    <div class="ws-window" id="window-graph">
+                        <div class="ws-window-header">
+                            <div class="window-title-left">
+                                <div class="window-dots">
+                                    <span class="window-dot min" onclick="toggleWindowMin('window-graph')"></span>
+                                    <span class="window-dot max" onclick="toggleWindowMax('window-graph')"></span>
+                                </div>
+                                <span class="window-title-text">🕸️ Knowledge Graph Studio</span>
+                            </div>
+                            <div class="window-controls-right">
+                                <button class="win-ctrl-btn" onclick="graphZoom(1.2)" title="Zoom In">+</button>
+                                <button class="win-ctrl-btn" onclick="graphZoom(0.8)" title="Zoom Out">−</button>
+                                <button class="win-ctrl-btn" onclick="graphResetView()" title="Fit View">⟲</button>
+                                <button class="win-ctrl-btn" onclick="toggleWindowMax('window-graph')" title="Maximize">⤢</button>
+                            </div>
+                        </div>
+                        <div class="ws-window-body" style="padding:0;position:relative">
+                            <div class="graph-canvas-viewport" id="graph-canvas-viewport">
+                                <canvas id="knowledge-graph-canvas"></canvas>
+                                <div class="graph-floating-inspector" id="graph-tooltip">
+                                    <div class="graph-tooltip-head" id="graph-tooltip-title"></div>
+                                    <div class="graph-tooltip-body" id="graph-tooltip-meta"></div>
+                                </div>
+                            </div>
+                            <div class="graph-bottom-legend">
+                                <div><span class="legend-node-dot" style="background:#1E40AF"></span> Question</div>
+                                <div><span class="legend-node-dot" style="background:#2563EB"></span> Paper (CORE)</div>
+                                <div><span class="legend-node-dot" style="background:#0E7490"></span> Paper (Europe PMC)</div>
+                                <div><span class="legend-node-dot" style="background:#059669"></span> Claim (+)</div>
+                                <div><span class="legend-node-dot" style="background:#BE123C"></span> Claim (−)</div>
+                                <div><span class="legend-node-diamond" style="background:#6D28D9"></span> PICO Concept</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Full Width Bottom Windows -->
+                <div class="col-full-width">
+
+                    <!-- Window 6: Literature Sources & Citations Matrix -->
+                    <div class="ws-window" id="window-citations">
+                        <div class="ws-window-header">
+                            <div class="window-title-left">
+                                <div class="window-dots">
+                                    <span class="window-dot min" onclick="toggleWindowMin('window-citations')"></span>
+                                    <span class="window-dot max" onclick="toggleWindowMax('window-citations')"></span>
+                                </div>
+                                <span class="window-title-text">📚 Literature Sources & Study Matrix</span>
+                                <span class="window-counter-badge" id="citations-count-badge">0 papers</span>
+                            </div>
+                            <div class="window-controls-right">
+                                <button class="win-ctrl-btn" onclick="toggleWindowMin('window-citations')" title="Minimize">−</button>
+                                <button class="win-ctrl-btn" onclick="toggleWindowMax('window-citations')" title="Maximize">⤢</button>
+                            </div>
+                        </div>
+                        <div class="ws-window-body" id="citations-window-body">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Window 7: Extracted Evidence Claims -->
+                    <div class="ws-window" id="window-claims">
+                        <div class="ws-window-header">
+                            <div class="window-title-left">
+                                <div class="window-dots">
+                                    <span class="window-dot min" onclick="toggleWindowMin('window-claims')"></span>
+                                    <span class="window-dot max" onclick="toggleWindowMax('window-claims')"></span>
+                                </div>
+                                <span class="window-title-text">🧪 Atomic Claims & Statistical Findings</span>
+                                <span class="window-counter-badge" id="claims-count-badge">0 claims</span>
+                            </div>
+                            <div class="window-controls-right">
+                                <button class="win-ctrl-btn" onclick="toggleWindowMin('window-claims')" title="Minimize">−</button>
+                                <button class="win-ctrl-btn" onclick="toggleWindowMax('window-claims')" title="Maximize">⤢</button>
+                            </div>
+                        </div>
+                        <div class="ws-window-body" id="claims-window-body">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Window 8: Transparency & Audit Trail -->
+                    <div class="ws-window" id="window-audit">
+                        <div class="ws-window-header">
+                            <div class="window-title-left">
+                                <div class="window-dots">
+                                    <span class="window-dot min" onclick="toggleWindowMin('window-audit')"></span>
+                                    <span class="window-dot max" onclick="toggleWindowMax('window-audit')"></span>
+                                </div>
+                                <span class="window-title-text">🔍 Transparency & Pipeline Audit Trail</span>
+                            </div>
+                            <div class="window-controls-right">
+                                <button class="win-ctrl-btn" onclick="toggleWindowMin('window-audit')" title="Minimize">−</button>
+                                <button class="win-ctrl-btn" onclick="toggleWindowMax('window-audit')" title="Maximize">⤢</button>
+                            </div>
+                        </div>
+                        <div class="ws-window-body" id="audit-window-body">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Error Window -->
+        <section class="error-window" id="error-section" style="display:none">
+            <h3>⚠️ System Notice</h3>
+            <p id="error-message"></p>
+        </section>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
