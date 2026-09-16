@@ -136,7 +136,10 @@ def generate_json(prompt: str, temperature: float = 0.1, max_tokens: int = 512, 
             }
             payload = {
                 "model": GROQ_MODEL,
-                "messages": [{"role": "user", "content": prompt}],
+                "messages": [
+                    {"role": "system", "content": "You are a scientific evidence analysis AI. Always respond with valid JSON."},
+                    {"role": "user", "content": prompt}
+                ],
                 "temperature": temperature,
                 "max_tokens": max_tokens,
                 "response_format": {"type": "json_object"},
@@ -159,7 +162,10 @@ def generate_json(prompt: str, temperature: float = 0.1, max_tokens: int = 512, 
             }
             payload = {
                 "model": OPENAI_MODEL,
-                "messages": [{"role": "user", "content": prompt}],
+                "messages": [
+                    {"role": "system", "content": "You are a scientific evidence analysis AI. Always respond with valid JSON."},
+                    {"role": "user", "content": prompt}
+                ],
                 "temperature": temperature,
                 "max_tokens": max_tokens,
                 "response_format": {"type": "json_object"},

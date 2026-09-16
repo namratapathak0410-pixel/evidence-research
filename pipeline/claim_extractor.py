@@ -76,7 +76,7 @@ Paper text:
 {text}
 """
 
-        data = generate_json(prompt, temperature=0.1, max_tokens=384, timeout=20)
+        data = generate_json(prompt, temperature=0.1, max_tokens=1024, timeout=30)
         raw_claims = data.get("claims", [])
         if not isinstance(raw_claims, list):
             raw_claims = []
