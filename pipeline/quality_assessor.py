@@ -54,8 +54,8 @@ def _infer_study_design_score(paper: NormalizedPaper, claim: ExtractedClaim) -> 
 
     # Check in claim text and abstract
     text = " ".join([
-        claim.claim_text,
-        claim.source_passage,
+        claim.claim_text or "",
+        claim.source_passage or "",
         paper.abstract or "",
     ]).lower()
 

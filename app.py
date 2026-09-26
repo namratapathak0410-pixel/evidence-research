@@ -157,6 +157,44 @@ def ollama_status():
     return jsonify(check_ollama_status())
 
 
+@app.route("/api/research/compare", methods=["POST"])
+def compare_research():
+    """
+    Compare evidence synthesis across OpenAI and Gemini (or Groq).
+    Request JSON:
+      {
+        "question": "Does metformin reduce cardiovascular events?",
+        "provider_a": "openai",
+        "provider_b": "gemini",
+        "openai_key": "...",
+        "gemini_key": "..."
+      }
+    """
+    data = request.get_json(silent=True) or {}
+    question = (data.get("question") or "").strip()
+    if not question:
+        return jsonify({"error": "Please provide a research inquiry to compare."}), 400
+
+    provider_a = data.get("provider_a") or "openai"
+    provider_b = data.get("provider_b") or "gemini"
+    openai_key = data.get("openai_key") or None
+    gemini_key = data.get("gemini_key") or None
+
+    try:
+        from pipeline.comparator import compare_models
+        res = compare_models(
+            question=question,
+            provider_a=provider_a,
+            provider_b=provider_b,
+            openai_key=openai_key,
+            gemini_key=gemini_key
+        )
+        return jsonify(res)
+    except Exception as e:
+        logger.error(f"Comparator error: {e}", exc_info=True)
+        return jsonify({"error": str(e)}), 500
+
+
 if __name__ == "__main__":
     logger.info(f"Starting Scientific Evidence Research System on "
                 f"{FLASK_HOST}:{FLASK_PORT}")

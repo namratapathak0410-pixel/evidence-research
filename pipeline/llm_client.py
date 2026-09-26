@@ -16,7 +16,8 @@ import requests
 from config import (
     OLLAMA_BASE_URL, OLLAMA_MODEL,
     GROQ_API_KEY, GROQ_MODEL,
-    OPENAI_API_KEY, OPENAI_MODEL, OPENAI_BASE_URL
+    OPENAI_API_KEY, OPENAI_MODEL, OPENAI_BASE_URL,
+    GEMINI_API_KEY, GEMINI_MODEL
 )
 
 logger = logging.getLogger(__name__)
@@ -134,11 +135,14 @@ def generate_json(prompt: str, temperature: float = 0.1, max_tokens: int = 512, 
                 "Authorization": f"Bearer {GROQ_API_KEY}",
                 "Content-Type": "application/json",
             }
+            groq_prompt = prompt
+            if "json" not in groq_prompt.lower():
+                groq_prompt = groq_prompt + "\nReturn the response strictly as a valid JSON object."
             payload = {
                 "model": GROQ_MODEL,
                 "messages": [
                     {"role": "system", "content": "You are a scientific evidence analysis AI. Always respond with valid JSON."},
-                    {"role": "user", "content": prompt}
+                    {"role": "user", "content": groq_prompt}
                 ],
                 "temperature": temperature,
                 "max_tokens": max_tokens,
@@ -316,3 +320,86 @@ def check_ollama_status() -> dict:
         pass
 
     return status
+
+
+def generate_openai_direct(prompt: str, api_key: str = None, model: str = None, as_json: bool = False, temperature: float = 0.2, max_tokens: int = 1200) -> dict:
+    key = api_key or OPENAI_API_KEY
+    if not key:
+        raise ValueError("OpenAI API key not provided or configured.")
+    m = model or OPENAI_MODEL
+    url = f"{OPENAI_BASE_URL.rstrip('/')}/chat/completions"
+    payload = {
+        "model": m,
+        "messages": [
+            {"role": "system", "content": "You are a scientific evidence synthesis intelligence engine." + (" Return valid JSON only." if as_json else "")},
+            {"role": "user", "content": prompt}
+        ],
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+    }
+    if as_json:
+        payload["response_format"] = {"type": "json_object"}
+    t0 = time.time()
+    resp = requests.post(url, json=payload, headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"}, timeout=25)
+    resp.raise_for_status()
+    latency = round(time.time() - t0, 2)
+    text = resp.json()["choices"][0]["message"]["content"].strip()
+    data = _extract_json_from_text(text) if as_json else text
+    return {"result": data, "latency_seconds": latency, "model": m, "provider": "OpenAI"}
+
+
+def generate_gemini_direct(prompt: str, api_key: str = None, model: str = None, as_json: bool = False, temperature: float = 0.2, max_tokens: int = 1200) -> dict:
+    key = api_key or GEMINI_API_KEY
+    if not key:
+        raise ValueError("Google Gemini API key not provided or configured.")
+    m = model or GEMINI_MODEL
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={key}"
+    generation_config = {
+        "temperature": temperature,
+        "maxOutputTokens": max_tokens,
+    }
+    if as_json:
+        generation_config["responseMimeType"] = "application/json"
+    
+    payload = {
+        "contents": [{"parts": [{"text": prompt}]}],
+        "generationConfig": generation_config
+    }
+    t0 = time.time()
+    resp = requests.post(url, json=payload, headers={"Content-Type": "application/json"}, timeout=25)
+    resp.raise_for_status()
+    latency = round(time.time() - t0, 2)
+    data = resp.json()
+    text = data["candidates"][0]["content"]["parts"][0]["text"].strip()
+    parsed = _extract_json_from_text(text) if as_json else text
+    return {"result": parsed, "latency_seconds": latency, "model": m, "provider": "Google Gemini"}
+
+
+def generate_groq_direct(prompt: str, api_key: str = None, model: str = None, as_json: bool = False, temperature: float = 0.2, max_tokens: int = 1200) -> dict:
+    key = api_key or GROQ_API_KEY
+    if not key:
+        raise ValueError("Groq API key not provided or configured.")
+    m = model or GROQ_MODEL
+    url = "https://api.groq.com/openai/v1/chat/completions"
+    p_content = prompt
+    if as_json and "json" not in p_content.lower():
+        p_content += "\nReturn strictly a valid JSON object."
+    payload = {
+        "model": m,
+        "messages": [
+            {"role": "system", "content": "You are a scientific evidence intelligence engine."},
+            {"role": "user", "content": p_content}
+        ],
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+    }
+    if as_json:
+        payload["response_format"] = {"type": "json_object"}
+    t0 = time.time()
+    resp = requests.post(url, json=payload, headers={"Authorization": f"Bearer {key}", "Content-Type": "application/json"}, timeout=20)
+    resp.raise_for_status()
+    latency = round(time.time() - t0, 2)
+    text = resp.json()["choices"][0]["message"]["content"].strip()
+    data = _extract_json_from_text(text) if as_json else text
+    return {"result": data, "latency_seconds": latency, "model": m, "provider": "Groq Cloud"}
+

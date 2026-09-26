@@ -79,12 +79,12 @@ def match_claim_to_question(claim: ExtractedClaim,
     """
     # Full text context for matching
     context = " ".join([
-        claim.claim_text,
-        claim.source_passage,
-        claim.population,
-        claim.intervention,
-        claim.comparator,
-        claim.outcome,
+        claim.claim_text or "",
+        claim.source_passage or "",
+        claim.population or "",
+        claim.intervention or "",
+        claim.comparator or "",
+        claim.outcome or "",
     ])
 
     # Match each dimension

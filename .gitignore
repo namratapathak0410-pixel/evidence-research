@@ -9,6 +9,12 @@ venv/
 ENV/
 env/
 
+# Node.js
+node_modules/
+.next/
+out/
+build/
+
 # Python bytecode & cache
 __pycache__/
 *.py[cod]
