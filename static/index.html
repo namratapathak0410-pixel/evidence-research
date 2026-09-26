@@ -310,6 +310,64 @@
                     </div>
                 </div>
 
+                <!-- Live High-Tech Telemetry HUD (Displays during comparison execution) -->
+                <div class="comparator-telemetry-hud" id="comparator-telemetry-hud" style="display:none;">
+                    <div class="hud-top-bar">
+                        <div class="hud-stage-box">
+                            <span class="hud-quantum-spinner"></span>
+                            <div class="hud-stage-texts">
+                                <span class="hud-active-step-num" id="hud-step-badge">STAGE 01 / 05</span>
+                                <span class="hud-active-stage-title" id="hud-stage-label">Connecting to Europe PMC scientific literature index...</span>
+                            </div>
+                        </div>
+                        <div class="hud-metrics-box">
+                            <div class="hud-metric-pill">
+                                <span class="hud-dot-pulse"></span>
+                                <span id="hud-engines-active">2 AI ENGINES RUNNING</span>
+                            </div>
+                            <div class="hud-metric-pill timer">
+                                <i data-lucide="clock" style="width:13px;height:13px;"></i>
+                                <span id="hud-timer-display">0.0s</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Glowing Dynamic Progress Rail -->
+                    <div class="hud-progress-rail">
+                        <div class="hud-progress-fill" id="hud-progress-fill" style="width: 15%;"></div>
+                    </div>
+
+                    <!-- Progress Step Chips -->
+                    <div class="hud-pipeline-steps-row">
+                        <div class="hud-step-pill active" id="hstep-1">
+                            <span class="step-num">1</span>
+                            <span>Literature Retrieval</span>
+                        </div>
+                        <div class="hud-step-pill" id="hstep-2">
+                            <span class="step-num">2</span>
+                            <span>PICO Normalization</span>
+                        </div>
+                        <div class="hud-step-pill" id="hstep-3">
+                            <span class="step-num">3</span>
+                            <span>OpenAI Synthesis</span>
+                        </div>
+                        <div class="hud-step-pill" id="hstep-4">
+                            <span class="step-num">4</span>
+                            <span>Gemini / Groq Inference</span>
+                        </div>
+                        <div class="hud-step-pill" id="hstep-5">
+                            <span class="step-num">5</span>
+                            <span>Concordance Metric</span>
+                        </div>
+                    </div>
+
+                    <!-- Engaging Did-You-Know Factoid Card -->
+                    <div class="hud-factoid-card">
+                        <i data-lucide="sparkles" style="width:16px;height:16px;color:var(--amber-bright);flex-shrink:0;"></i>
+                        <span id="hud-factoid-text">Scanning Europe PMC for randomized controlled trials and full-text evidence...</span>
+                    </div>
+                </div>
+
                 <!-- Divergence Alerts Banner -->
                 <div class="divergence-alert-card" id="divergence-banner">
                     <i data-lucide="scale" style="width:20px;height:20px;flex-shrink:0;"></i>
